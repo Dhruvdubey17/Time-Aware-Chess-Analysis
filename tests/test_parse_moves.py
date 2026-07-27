@@ -9,7 +9,7 @@ from pathlib import Path
 import chess
 import chess.pgn
 
-from chess_strength.parse_moves import parse_game, parse_pgn_file, to_pov_cp
+from chess_strength.parse_moves import parse_pgn_file, to_pov_cp
 
 FIXTURE = Path(__file__).parent / "fixtures" / "mini.pgn"
 

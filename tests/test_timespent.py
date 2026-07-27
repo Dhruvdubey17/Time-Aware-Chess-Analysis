@@ -9,7 +9,11 @@ from pathlib import Path
 import pytest
 
 from chess_strength.parse_moves import parse_pgn_file
-from chess_strength.timespent import add_time_spent, parse_time_control, time_spent_series
+from chess_strength.timespent import (
+    add_time_spent,
+    parse_time_control,
+    time_spent_series,
+)
 
 FIXTURE = Path(__file__).parent / "fixtures" / "mini.pgn"
 

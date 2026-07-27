@@ -1,0 +1,20 @@
+# Local working files, never tracked
+PLAN.md
+context.md
+
+# All runtime data (downloads, parsed parquet, feature tables)
+data/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# macOS
+.DS_Store
+
+# Notebook checkpoints
+.ipynb_checkpoints/

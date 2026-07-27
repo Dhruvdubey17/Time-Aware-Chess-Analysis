@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chess-strength"
+version = "0.1.0"
+description = "Time-aware chess player-strength model"
+requires-python = ">=3.11"
+dependencies = [
+    "python-chess>=1.11",
+    "zstandard>=0.22",
+    "polars>=1.0",
+    "lightgbm>=4.3",
+    "scikit-learn>=1.4",
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "pyyaml>=6.0",
+    "matplotlib>=3.8",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

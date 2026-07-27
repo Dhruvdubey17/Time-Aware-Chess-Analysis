@@ -1,0 +1,35 @@
+# Central config for the whole pipeline. Later phases read from here so that
+# node budgets, thresholds, and paths live in one place, not scattered in code.
+
+# Time controls we start with. Bullet and correspondence are left out on
+# purpose; their clock semantics are unreliable for this work.
+regimes: [blitz, rapid]
+
+# Engine budget. Fixed node count, never wall-clock, so runs are reproducible
+# across machines.
+stockfish_nodes: 200000
+multipv: 4
+
+# Clip evals to this centipawn range before turning them into win%. Keeps
+# lopsided positions from dominating.
+eval_clip_cp: 1000
+
+# First plies of a game are opening theory; flag them so we can drop them.
+book_plies: 12
+
+# A move faster than this is likely a pre-move, not a real decision.
+premove_time_threshold_s: 0.3
+
+# Lichess win% sigmoid constant. Do not round this; it is their exact value.
+winprob_k: 0.00368208
+
+# Path to the Stockfish UCI binary. Installed via `brew install stockfish`
+# (Homebrew x86_64 prefix, currently Stockfish 18). Update if you install it
+# elsewhere or pin a specific version.
+stockfish_path: /usr/local/bin/stockfish
+
+# Data layout. All of data/ is gitignored; these are created on demand.
+paths:
+  raw: data/raw
+  interim: data/interim
+  processed: data/processed

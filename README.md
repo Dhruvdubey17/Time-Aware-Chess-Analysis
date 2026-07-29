@@ -57,6 +57,25 @@ just close the window.
 3. Each move shows its label. Moves found under real time pressure light up, and
    selecting one explains why in plain words.
 
+## Remove the app
+
+To clear the app from your machine, run the line for your system. It removes what
+the setup created inside this folder (the environments, the chess engine, the Maia
+weights, the cache, and the built interface). It leaves Python, uv, and Node alone,
+since those live outside this folder and you may use them elsewhere.
+
+**macOS or Linux**
+
+```bash
+bash install/delete.sh
+```
+
+**Windows**
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install\delete.ps1
+```
+
 ## A note on speed and privacy
 
 The first review of a new game takes a little while, from a few seconds to a

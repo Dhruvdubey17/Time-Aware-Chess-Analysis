@@ -18,6 +18,8 @@ dependencies = [
     "pyarrow>=15.0",
     "pyyaml>=6.0",
     "matplotlib>=3.8",
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
 ]
 
 [project.optional-dependencies]
@@ -30,4 +32,5 @@ where = ["src"]
 testpaths = ["tests"]
 markers = [
     "engine: needs the Stockfish binary; skipped when it is not installed",
+    "maia: needs the .venv_maia environment; skipped when it is not present",
 ]

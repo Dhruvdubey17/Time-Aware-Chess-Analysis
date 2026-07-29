@@ -1,0 +1,14 @@
+[Event "Rated Blitz game"]
+[Site "https://lichess.org/x1y2z3a4"]
+[Date "2023.06.11"]
+[White "knightrider"]
+[Black "pawnstorm"]
+[Result "1-0"]
+[WhiteElo "1712"]
+[BlackElo "1689"]
+[TimeControl "180+2"]
+[ECO "B23"]
+[Opening "Sicilian Defense: Closed"]
+[Termination "Normal"]
+
+1. e4 { [%eval 0.15] [%clk 0:03:00] } c5 { [%eval 0.12] [%clk 0:03:00] } 2. Nc3 { [%eval 0.10] [%clk 0:03:01] } Nc6 { [%eval 0.14] [%clk 0:02:59] } 3. g3 { [%eval 0.09] [%clk 0:03:01] } g6 { [%eval 0.11] [%clk 0:02:57] } 4. Bg2 { [%eval 0.08] [%clk 0:03:01] } Bg7 { [%eval 0.13] [%clk 0:02:54] } 5. d3 { [%eval 0.07] [%clk 0:03:00] } d6 { [%eval 0.10] [%clk 0:02:50] } 6. f4 { [%eval 0.05] [%clk 0:02:58] } e6 { [%eval 0.18] [%clk 0:02:41] } 7. Nf3 { [%eval 0.16] [%clk 0:02:57] } Nge7 { [%eval 0.21] [%clk 0:02:33] } 8. O-O { [%eval 0.19] [%clk 0:02:57] } O-O { [%eval 0.22] [%clk 0:02:20] } 9. Be3 { [%eval 0.20] [%clk 0:02:52] } Nd4 { [%eval 0.35] [%clk 0:01:58] } 10. e5 { [%eval 0.28] [%clk 0:01:29] } dxe5 { [%eval 0.31] [%clk 0:01:40] } 11. fxe5 { [%eval 0.30] [%clk 0:01:22] } Bxe5 { [%eval 1.85] [%clk 0:00:24] } 12. Nxe5 { [%eval 1.90] [%clk 0:01:15] } 1-0

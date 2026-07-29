@@ -1,0 +1,343 @@
+{
+  "step": "STEP 1 think-time validation",
+  "complexity_definition": "decision_entropy over the cached top-k candidate evals (softmax temp 100 cp, normalized to [0,1]); 0 = one clearly best move, 1 = several equally good. Read from data/processed/tierb/cache, fixed 30000 nodes, multipv 4. Not recomputed.",
+  "target": "log1p(time_spent_s)",
+  "numeric_features": [
+    "complexity",
+    "move_number",
+    "log_clock_before"
+  ],
+  "categorical_features": [
+    "game_phase",
+    "regime",
+    "rating_band"
+  ],
+  "residual_definition": "time_spent_s - expected_thinktime(model, row); positive means the player spent longer than complexity and clock context predict.",
+  "n_rows": 1304461,
+  "n_players": 3001,
+  "model_r2": 0.15563542202032887,
+  "correlations": {
+    "overall": {
+      "rho": 0.046094471008864095,
+      "p": 0.0,
+      "n": 1304461
+    },
+    "by_regime": {
+      "blitz": {
+        "rho": 0.039131406460458054,
+        "p": 1.6103393001377256e-240,
+        "n": 715746
+      },
+      "rapid": {
+        "rho": 0.06886570659962951,
+        "p": 0.0,
+        "n": 588715
+      }
+    },
+    "by_band": {
+      "[0, 1300)": {
+        "rho": 0.03532930018034062,
+        "p": 4.431922010395288e-37,
+        "n": 129603
+      },
+      "[1300, 1500)": {
+        "rho": 0.0441863950734652,
+        "p": 9.582691395204591e-112,
+        "n": 258186
+      },
+      "[1500, 1700)": {
+        "rho": 0.051235912277038345,
+        "p": 1.5363484371923674e-207,
+        "n": 359554
+      },
+      "[1700, 1900)": {
+        "rho": 0.05673927566205226,
+        "p": 1.9440128334287793e-220,
+        "n": 311502
+      },
+      "[1900, 2100)": {
+        "rho": 0.05367472935528243,
+        "p": 6.720604455503618e-101,
+        "n": 157616
+      },
+      "[2100, 9999)": {
+        "rho": 0.0751496183291565,
+        "p": 2.14941189529074e-110,
+        "n": 88000
+      }
+    },
+    "by_band_regime": {
+      "[0, 1300) | blitz": {
+        "rho": 0.040520353507164195,
+        "p": 2.1748049716113264e-27,
+        "n": 71538
+      },
+      "[0, 1300) | rapid": {
+        "rho": 0.04663356893264538,
+        "p": 2.5066789855234103e-29,
+        "n": 58065
+      },
+      "[1300, 1500) | blitz": {
+        "rho": 0.03792335287514549,
+        "p": 7.310565716043765e-44,
+        "n": 134051
+      },
+      "[1300, 1500) | rapid": {
+        "rho": 0.06526379382396344,
+        "p": 3.0379922602906715e-117,
+        "n": 124135
+      },
+      "[1500, 1700) | blitz": {
+        "rho": 0.04771656604195813,
+        "p": 1.526952855590713e-97,
+        "n": 192729
+      },
+      "[1500, 1700) | rapid": {
+        "rho": 0.07311251347535747,
+        "p": 1.8516823785341656e-196,
+        "n": 166825
+      },
+      "[1700, 1900) | blitz": {
+        "rho": 0.049576401192215375,
+        "p": 2.180125615943257e-93,
+        "n": 170767
+      },
+      "[1700, 1900) | rapid": {
+        "rho": 0.07650862010495427,
+        "p": 1.0817006137276652e-181,
+        "n": 140735
+      },
+      "[1900, 2100) | blitz": {
+        "rho": 0.03450002761245035,
+        "p": 1.977862544773623e-25,
+        "n": 91196
+      },
+      "[1900, 2100) | rapid": {
+        "rho": 0.083079426999653,
+        "p": 4.769577176057639e-102,
+        "n": 66420
+      },
+      "[2100, 9999) | blitz": {
+        "rho": 0.06243583308645175,
+        "p": 4.91891086569718e-49,
+        "n": 55465
+      },
+      "[2100, 9999) | rapid": {
+        "rho": 0.09520072012921914,
+        "p": 2.2254017532008038e-66,
+        "n": 32535
+      }
+    },
+    "robustness": {
+      "eval_gap_1_2": {
+        "rho": -0.02421291412180629,
+        "p": 2.133886764539376e-166,
+        "n": 1288905
+      },
+      "n_reasonable": {
+        "rho": 0.09756198300410086,
+        "p": 0.0,
+        "n": 1304461
+      }
+    }
+  },
+  "aggregated_headline": {
+    "binned_by_regime": {
+      "blitz": {
+        "pearson": 0.7811302896898289,
+        "spearman": 0.01818181818181818,
+        "n_bins": 10
+      },
+      "rapid": {
+        "pearson": 0.8304305907554714,
+        "spearman": 0.17575757575757575,
+        "n_bins": 10
+      }
+    },
+    "complexity_distribution": {
+      "median": 0.9746131607202503,
+      "frac_ge_0.9": 0.7052629400189043,
+      "frac_ge_0.95": 0.6080135780218803,
+      "note": "top-4 decision entropy saturates near 1.0; most rank signal is below ~0.9"
+    }
+  },
+  "regression": {
+    "overall": {
+      "names": [
+        "intercept",
+        "complexity",
+        "move_number",
+        "log_clock_before",
+        "game_phase_middlegame",
+        "regime_rapid",
+        "rating_band_[1300, 1500)",
+        "rating_band_[1500, 1700)",
+        "rating_band_[1700, 1900)",
+        "rating_band_[1900, 2100)",
+        "rating_band_[2100, 9999)"
+      ],
+      "complexity_beta": 0.10374058587922641,
+      "complexity_se": 0.0007022468585953213,
+      "complexity_t": 147.72666421995098,
+      "complexity_p": 0.0,
+      "r2": 0.15563542202032887,
+      "n": 1304461
+    },
+    "by_regime": {
+      "blitz": {
+        "names": [
+          "intercept",
+          "complexity",
+          "move_number",
+          "log_clock_before",
+          "game_phase_middlegame",
+          "rating_band_[1300, 1500)",
+          "rating_band_[1500, 1700)",
+          "rating_band_[1700, 1900)",
+          "rating_band_[1900, 2100)",
+          "rating_band_[2100, 9999)"
+        ],
+        "complexity_beta": 0.08098372415362376,
+        "complexity_se": 0.0008619247914629909,
+        "complexity_t": 93.95683353783777,
+        "complexity_p": 0.0,
+        "r2": 0.0748163509876908,
+        "n": 715746
+      },
+      "rapid": {
+        "names": [
+          "intercept",
+          "complexity",
+          "move_number",
+          "log_clock_before",
+          "game_phase_middlegame",
+          "rating_band_[1300, 1500)",
+          "rating_band_[1500, 1700)",
+          "rating_band_[1700, 1900)",
+          "rating_band_[1900, 2100)",
+          "rating_band_[2100, 9999)"
+        ],
+        "complexity_beta": 0.1311660284416704,
+        "complexity_se": 0.0011455109192429964,
+        "complexity_t": 114.50438947221093,
+        "complexity_p": 0.0,
+        "r2": 0.08188813785877502,
+        "n": 588715
+      }
+    },
+    "by_band": {
+      "[0, 1300)": {
+        "names": [
+          "intercept",
+          "complexity",
+          "move_number",
+          "log_clock_before",
+          "game_phase_middlegame",
+          "regime_rapid"
+        ],
+        "complexity_beta": 0.08596937620424172,
+        "complexity_se": 0.002101046008592837,
+        "complexity_t": 40.917417254379494,
+        "complexity_p": 0.0,
+        "r2": 0.1361055589622555,
+        "n": 129603
+      },
+      "[1300, 1500)": {
+        "names": [
+          "intercept",
+          "complexity",
+          "move_number",
+          "log_clock_before",
+          "game_phase_middlegame",
+          "regime_rapid"
+        ],
+        "complexity_beta": 0.09710529728852896,
+        "complexity_se": 0.0015417467947316558,
+        "complexity_t": 62.98394627467368,
+        "complexity_p": 0.0,
+        "r2": 0.15053381441558555,
+        "n": 258186
+      },
+      "[1500, 1700)": {
+        "names": [
+          "intercept",
+          "complexity",
+          "move_number",
+          "log_clock_before",
+          "game_phase_middlegame",
+          "regime_rapid"
+        ],
+        "complexity_beta": 0.10746921472826498,
+        "complexity_se": 0.0013545210624469047,
+        "complexity_t": 79.34111746784124,
+        "complexity_p": 0.0,
+        "r2": 0.14474418950462486,
+        "n": 359554
+      },
+      "[1700, 1900)": {
+        "names": [
+          "intercept",
+          "complexity",
+          "move_number",
+          "log_clock_before",
+          "game_phase_middlegame",
+          "regime_rapid"
+        ],
+        "complexity_beta": 0.10917359207483296,
+        "complexity_se": 0.0014611986539620622,
+        "complexity_t": 74.71509214630545,
+        "complexity_p": 0.0,
+        "r2": 0.14937889682336725,
+        "n": 311502
+      },
+      "[1900, 2100)": {
+        "names": [
+          "intercept",
+          "complexity",
+          "move_number",
+          "log_clock_before",
+          "game_phase_middlegame",
+          "regime_rapid"
+        ],
+        "complexity_beta": 0.10667651698003067,
+        "complexity_se": 0.0020306893118897207,
+        "complexity_t": 52.532170409051666,
+        "complexity_p": 0.0,
+        "r2": 0.16982359540032155,
+        "n": 157616
+      },
+      "[2100, 9999)": {
+        "names": [
+          "intercept",
+          "complexity",
+          "move_number",
+          "log_clock_before",
+          "game_phase_middlegame",
+          "regime_rapid"
+        ],
+        "complexity_beta": 0.11305032882016958,
+        "complexity_se": 0.002710147699702547,
+        "complexity_t": 41.71371502467465,
+        "complexity_p": 0.0,
+        "r2": 0.15264837093974526,
+        "n": 88000
+      }
+    }
+  },
+  "verdict": {
+    "pass": true,
+    "overall_rho": 0.046094471008864095,
+    "overall_ok": true,
+    "both_regimes_positive_sig": true,
+    "controlled_effect_positive_sig": true,
+    "bands_positive": "6/6",
+    "bands_ok": true,
+    "controlled_complexity_beta": 0.10374058587922641,
+    "binned_pearson": {
+      "blitz": 0.7811302896898289,
+      "rapid": 0.8304305907554714
+    },
+    "caveat": "Raw per-move Spearman is weak (+0.046) because per-move times are noisy AND the top-4 decision-entropy metric saturates (61% of positions >= 0.95). The signal is clear once binned (Barthelemy Pearson ~0.78-0.83) and after controlling for the clock context (complexity beta +0.104 per SD, t +148). Direction is consistent in all regimes and bands.",
+    "recommendation": "Proceed with Option B. For the multiplicative complexity gate in STEP 2, do NOT use the raw saturated entropy; prefer a less-saturated reading from the same cache (n_reasonable had the best raw rho, eval_gap_1_2 has full spread and the right sign) or a rescaled entropy."
+  }
+}

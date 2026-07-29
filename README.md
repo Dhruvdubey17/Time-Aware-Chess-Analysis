@@ -1,43 +1,82 @@
-# Time-Aware Chess Player-Strength Model
+# Chess Review
 
-Estimates chess player strength from their games. Move quality is judged
-conditionally on the time left on the clock, position complexity, and rating.
-Skill means playing better than expected for the clock and complexity you
-faced, not just low centipawn loss.
+Review one of your chess games on your own computer, and get a second opinion
+that most tools miss: which good moves you found while the clock was against you.
 
-Data is the Lichess Open Database. The engine is Stockfish. Everything runs on
-free tools and free compute.
+Every move gets a normal label you already know from online chess: Best,
+Excellent, Good, Book, Inaccuracy, Mistake, Blunder, and the rare Great and
+Brilliant. On top of that, moves you found in a hard position with little time
+left get a special mention, because a strong move played under real pressure
+deserves more credit than the same move with all the time in the world.
 
-## Setup
+Everything runs on your machine. Your games are not sent anywhere.
 
-Requires Python 3.11+ and the Stockfish binary.
+## Install
 
-```bash
-brew install stockfish          # provides /usr/local/bin/stockfish
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-```
+You only do this once. Open a terminal in this folder and run the line for your
+system. It downloads what it needs and sets everything up. It never asks for
+your password.
 
-Set `stockfish_path` in `config/default.yaml` if your binary lives elsewhere.
-
-## Check the engine
+**macOS or Linux**
 
 ```bash
-python scripts/check_engine.py   # prints a bestmove for the start position
+bash install/install.sh
 ```
 
-## Tests
+**Windows** (in PowerShell)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install\install.ps1
+```
+
+When it finishes it prints the one command to start the app.
+
+## Start the app
+
+**macOS or Linux**
 
 ```bash
-pytest
+bash install/launch.sh
 ```
 
-## Layout
+**Windows**
 
-- `src/chess_strength/` importable pipeline logic, unit tested.
-- `config/default.yaml` node budgets, thresholds, and paths in one place.
-- `scripts/` thin CLI wrappers over `src/`.
-- `tests/` pytest, with a small PGN fixture in `tests/fixtures/`.
-- `data/` runtime downloads and outputs (gitignored).
-- `notebooks/` for looking at results only, never pipeline logic.
+```powershell
+powershell -ExecutionPolicy Bypass -File install\launch.ps1
+```
+
+Your browser opens to the app. To stop it, press Ctrl+C in that terminal, or
+just close the window.
+
+## How to use it
+
+1. Paste a game, or upload a `.pgn` file, or type a chess.com username to pull a
+   game from your account.
+2. Wait for the review. Step through the game with the move list, the arrow
+   keys, or the graph.
+3. Each move shows its label. Moves found under real time pressure light up, and
+   selecting one explains why in plain words.
+
+## A note on speed and privacy
+
+The first review of a new game takes a little while, from a few seconds to a
+couple of minutes, because the whole analysis runs on your machine, not in the
+cloud. A game you have already looked at comes back instantly.
+
+Reviewing a pasted or uploaded game uses no internet at all. The only time the
+app goes online is if you ask it to fetch a game from chess.com, and then only
+to get that one game.
+
+The time-aware second opinion is available for blitz and rapid games that
+include move times. Games without move times still get the full normal review.
+
+## Good to know
+
+- The install and launch are proven on macOS (Apple Silicon). The Windows and
+  Linux scripts are written and ready, but are still pending a test run on real
+  Windows and Linux machines.
+- On Linux, the chess engine download supports Intel and AMD (x86_64) machines.
+  Linux on ARM is not covered yet.
+- Bullet games get the normal review but not the time-aware one. Time pressure is
+  measured for blitz and rapid, where it has been checked; bullet is a possible
+  later addition.

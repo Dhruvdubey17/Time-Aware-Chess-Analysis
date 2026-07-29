@@ -10,9 +10,13 @@ import numpy as np
 import pandas as pd
 
 from chess_strength.model_gbm import (
+    CLOCK_FEATURES,
+    TIER_A_COMPLEXITY_FEATURES,
+    TIERB_COMPLEXITY_FEATURES,
     build_matrix,
     evaluate_model,
     feature_importance,
+    features_excluding,
     train_gbm,
 )
 
@@ -29,6 +33,19 @@ def _synthetic(n=1500, seed=0):
         "mean_wpl": x0, "mean_time": x1, "n_clean": rng.integers(50, 500, n),
         "glicko": glicko,
     })
+
+
+def test_feature_groups_disjoint_and_excludable():
+    # The ablation groups must not overlap with each other.
+    assert set(CLOCK_FEATURES) & set(TIER_A_COMPLEXITY_FEATURES) == set()
+    assert set(TIERB_COMPLEXITY_FEATURES) & set(CLOCK_FEATURES) == set()
+    assert set(TIERB_COMPLEXITY_FEATURES) & set(TIER_A_COMPLEXITY_FEATURES) == set()
+    cols = CLOCK_FEATURES + TIER_A_COMPLEXITY_FEATURES + ["mean_cpl", "share_blitz"]
+    no_clock = features_excluding(cols, CLOCK_FEATURES)
+    assert not (set(no_clock) & set(CLOCK_FEATURES))
+    assert "mean_cpl" in no_clock and "mean_eval_swing" in no_clock
+    # Order is preserved.
+    assert no_clock == [c for c in cols if c not in set(CLOCK_FEATURES)]
 
 
 def test_build_matrix_excludes_target_and_keys():

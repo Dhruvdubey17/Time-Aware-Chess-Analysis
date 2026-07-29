@@ -1,0 +1,13 @@
+[Event "Rated Classical game"]
+[Site "https://lichess.org/cl1234 ss"]
+[White "patient_pete"]
+[Black "long_haul"]
+[Result "1/2-1/2"]
+[WhiteElo "1990"]
+[BlackElo "2005"]
+[TimeControl "5400+30"]
+[ECO "D02"]
+[Opening "Queen's Pawn Game"]
+[Termination "Normal"]
+
+1. d4 { [%eval 0.15] [%clk 1:30:00] } d5 { [%eval 0.10] [%clk 1:30:00] } 2. Nf3 { [%eval 0.12] [%clk 1:30:25] } Nf6 { [%eval 0.09] [%clk 1:30:22] } 3. c4 { [%eval 0.18] [%clk 1:30:40] } e6 { [%eval 0.14] [%clk 1:30:10] } 4. Nc3 { [%eval 0.20] [%clk 1:30:55] } Be7 { [%eval 0.16] [%clk 1:29:40] } 5. Bg5 { [%eval 0.22] [%clk 1:30:30] } O-O { [%eval 0.19] [%clk 1:29:20] } 1/2-1/2

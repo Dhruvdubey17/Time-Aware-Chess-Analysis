@@ -28,6 +28,45 @@ winprob_k: 0.00368208
 # elsewhere or pin a specific version.
 stockfish_path: /usr/local/bin/stockfish
 
+# Move classifier thresholds (STEP 2). All are our choices on the Win% scale,
+# an honest reconstruction of chess.com's tier NAMES, not their real math.
+# wpl values are win-percentage points, dispersion is nats, times are seconds.
+classify:
+  # Baseline tiers by Win% loss (upper edge of each tier).
+  best_max: 2.0
+  excellent_max: 5.0
+  good_max: 10.0
+  inaccuracy_max: 20.0
+  mistake_max: 30.0
+  eligibility_max: 10.0        # only moves at or below this wpl can be upgraded
+  near_best_max: 3.0           # below this a move can never be labeled Great, anywhere
+  # Brilliant (!!) rule. All four conditions must hold: near-best (reuses
+  # near_best_max), not already winning (winning_ceiling), a sound sacrifice not
+  # won back (sac_cp, and not losing after via not_losing_floor), and hard for a
+  # human to find (disp_min, high Maia dispersion). Lower sac_cp toward 100 to
+  # also count pawn sacrifices; that will make Brilliant less rare.
+  brilliant_sac_cp: 200.0
+  brilliant_winning_ceiling: 85.0
+  brilliant_not_losing_floor: 45.0
+  brilliant_disp_min: 2.00
+  # Great (only good move) rule, time-blind. Gap tuned so baseline Great < ~2%.
+  great_gap_cp: 550.0
+  # Complexity gate: Maia dispersion mapped to [0,1] (calibrated on validation).
+  disp_lo: 0.90
+  disp_hi: 2.20
+  # Time pressure: clock must be a real constraint (fades out above danger zone).
+  clock_danger_s: 60.0
+  pressure_time_ref_s: 10.0
+  pressure_base: 0.5
+  # Option B skill cutoffs (skill is in [0,1]).
+  cut_excellent: 0.15
+  cut_great: 0.35
+  cut_brilliant: 0.55
+  # Option A transparent thresholds.
+  a_wpl_max: 5.0
+  a_disp_min: 2.00
+  a_pressure_min: 0.30
+
 # Data layout. All of data/ is gitignored; these are created on demand.
 paths:
   raw: data/raw

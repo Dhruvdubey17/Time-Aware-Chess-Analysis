@@ -1,0 +1,14 @@
+[Event "Rated Rapid game"]
+[Site "https://lichess.org/qq00ww11"]
+[Date "2023.07.02"]
+[White "latnight_gambit"]
+[Black "quietmover"]
+[Result "*"]
+[WhiteElo "1544"]
+[BlackElo "1560"]
+[TimeControl "600+5"]
+[ECO "C42"]
+[Opening "Russian Game"]
+[Termination "Abandoned"]
+
+1. e4 { [%eval 0.16] [%clk 0:10:00] } e5 { [%eval 0.14] [%clk 0:10:00] } 2. Nf3 { [%eval 0.15] [%clk 0:10:04] } Nf6 { [%eval 0.13] [%clk 0:10:03] } 3. Nxe5 { [%eval 0.12] [%clk 0:10:07] } *

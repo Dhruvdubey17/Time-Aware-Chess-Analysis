@@ -16,6 +16,33 @@ import pandas as pd
 # Columns that are keys or the target, never features.
 NON_FEATURES = {"player_id", "glicko", "n_clean", "n_games"}
 
+# Feature groups for the Phase 9 ablation. CLOCK is how a player uses the clock
+# (time spent, time left, time pressure), including per-phase time. Time-control
+# settings (base time, increment) and regime shares stay in the backbone, so a
+# no-clock arm still knows the time control, just not the usage. That isolates
+# the clock-usage signal, which is the thesis. TIER_A_COMPLEXITY is the two
+# population-wide eval-shape proxies; engine MultiPV complexity is not a
+# per-player feature here (the cache covers too few players).
+CLOCK_FEATURES = [
+    "mean_log_time_spent", "mean_time_spent", "mean_clock_remaining",
+    "time_pressure_rate", "mean_frac_time_used", "time_middlegame", "time_endgame",
+]
+TIER_A_COMPLEXITY_FEATURES = ["mean_eval_swing", "mean_eval_volatility"]
+
+# Tier-B engine (MultiPV) complexity, per-player aggregates of the four
+# per-position features derived from Stockfish top-k evals. Only available on the
+# annotated sample, so it is used only in the Phase 9 Tier-B ablation.
+TIERB_COMPLEXITY_FEATURES = [
+    "tb_gap_mean", "tb_gap_std", "tb_nreason_mean", "tb_nreason_std",
+    "tb_entropy_mean", "tb_entropy_std", "tb_onlymove_rate",
+]
+
+
+def features_excluding(all_cols: list[str], drop: list[str]) -> list[str]:
+    """Feature list with a group removed, order preserved (base minus a group)."""
+    drop = set(drop)
+    return [c for c in all_cols if c not in drop]
+
 
 def build_matrix(df: pd.DataFrame, feature_cols: list[str] | None = None):
     """Split a per-player table into (X, y, feature_cols).

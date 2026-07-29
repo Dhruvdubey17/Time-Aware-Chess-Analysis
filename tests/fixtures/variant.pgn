@@ -1,0 +1,25 @@
+[Event "Rated Chess960 game"]
+[Site "https://lichess.org/vv99uu88"]
+[Date "2023.08.19"]
+[White "randomizer"]
+[Black "fischerfan"]
+[Result "1-0"]
+[WhiteElo "1900"]
+[BlackElo "1888"]
+[Variant "Chess960"]
+[TimeControl "300+0"]
+[FEN "nrbqkbrn/pppppppp/8/8/8/8/PPPPPPPP/NRBQKBRN w GBgb - 0 1"]
+[SetUp "1"]
+
+1. Nb3 Nb6 2. e4 e5 3. Be2 Be7 1-0
+
+[Event "Analysis"]
+[Site "?"]
+[Date "2023.09.01"]
+[White "Study"]
+[Black "Study"]
+[Result "*"]
+[SetUp "1"]
+[FEN "4k3/8/4K3/8/8/8/8/4R3 w - - 0 1"]
+
+1. Rf1 Kd8 2. Rf8+ Kc7 *

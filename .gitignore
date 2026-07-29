@@ -1,12 +1,17 @@
 # Local working files, never tracked
 PLAN.md
 context.md
+BUILD.md
 
 # All runtime data (downloads, parsed parquet, feature tables)
 data/
 
+# Chess engine binary fetched by the install script, not committed
+engines/
+
 # Python
 .venv/
+.venv_maia/
 __pycache__/
 *.py[cod]
 *.egg-info/

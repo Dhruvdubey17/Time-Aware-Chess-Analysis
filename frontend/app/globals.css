@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+/* Chess.com analysis feel: calm dark chrome, a classic green board, restrained
+   accents. Tokens live here so components stay free of hard-coded colors. */
+@theme {
+  --color-app: #262421;
+  --color-panel: #302e2b;
+  --color-panel2: #3a3835;
+  --color-border: #45423e;
+  --color-primary: #ececec;
+  --color-muted: #b3afa8;
+  --color-faint: #8b8781;
+
+  --color-accent: #e0a83a; /* the pressure highlight: warm, "found under fire" */
+  --color-good: #7fa650; /* generic positive */
+  --color-bad: #c9433a; /* generic negative */
+
+  --color-board-light: #eeeed2;
+  --color-board-dark: #6f9350;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Menlo", "Consolas", monospace;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-app);
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+}
+
+/* Thin, unobtrusive scrollbars for the move list and panels. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}

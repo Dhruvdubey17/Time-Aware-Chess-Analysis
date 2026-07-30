@@ -10,6 +10,9 @@ data/
 # Chess engine binary fetched by the install script, not committed
 engines/
 
+# Release archive built by install/prepare_release.sh, never committed
+chess-review.tar.gz
+
 # Python
 .venv/
 .venv_maia/

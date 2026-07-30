@@ -9,44 +9,63 @@ That prebuilt interface is the same for every user, so you build it once here,
 and it works on macOS, Windows, and Linux. Building it is the only step that
 needs Node.js, and only you do it.
 
-## Step 1: build the interface
+## Build and package (one command)
 
-From the project root, on a machine with Node.js 18+:
+From anywhere inside the project, on a machine with Node.js 18+:
 
 ```bash
 bash install/prepare_release.sh
 ```
 
-This runs the web build and writes the static interface to `frontend/out`. It
-checks the result and stops with a clear message if the build did not produce
-`frontend/out/index.html`.
+This does everything:
 
-If you are on Windows and prefer not to use a bash shell, run the same build by
-hand:
+1. Builds the web interface into static files at `frontend/out`.
+2. Checks the build produced `frontend/out/index.html`, and stops with a clear
+   message if it did not.
+3. Packages the whole app into one archive, `chess-review.tar.gz`, placed one
+   level ABOVE the project folder (so it is never packed inside itself).
+4. Confirms the prebuilt interface actually made it into the archive before it
+   says "Release ready".
+
+The archive includes the prebuilt interface and the bundled assets. It leaves out
+the big folders the user's install rebuilds (the Python environments, the
+downloaded engine, the model weights, `node_modules`, build caches) and the
+private working notes. It ends up around half a megabyte.
+
+Share that one `chess-review.tar.gz` file. The person you send it to unpacks it
+and runs the install script for their system:
+
+- macOS or Linux: `bash install/install.sh`
+- Windows: `powershell -ExecutionPolicy Bypass -File install\install.ps1`
+
+The install downloads the engine, the model, and the model weights, sets up the
+Python environments, and uses the prebuilt interface as-is. No Node.js, no web
+build, ever, on their machine. If the prebuilt interface is somehow missing from
+the package, the install stops early and tells you (the release builder) to run
+`install/prepare_release.sh`, and it never falls back to needing Node.js.
+
+## Packaging by hand (only if you cannot run the script)
+
+If you build on Windows, or want to package yourself, build the interface first:
 
 ```powershell
 cd frontend
 npm ci
 $env:NEXT_PUBLIC_API_BASE = ""
 npm run build
+cd ..
 ```
 
 `NEXT_PUBLIC_API_BASE` must be empty so the built app talks to the local backend
 on its own address, which is how the launcher serves it.
 
-## Step 2: package the folder
-
-Package the project folder into one archive to share. Include `frontend/out` (the
-prebuilt interface) and `assets` (the opening book and models). Leave out the big
-folders the install script rebuilds on the user's machine (the Python
-environments, the downloaded engine, the model weights) and the private working
-notes.
-
-`frontend/out` is in `.gitignore`, so do not build the archive from `git`. Copy
-the files instead. This command, run from the folder ABOVE the project, makes a
-clean archive (tested on macOS and Linux tar):
+Then make the archive. `frontend/out` is in `.gitignore`, so do not build the
+archive from `git`; copy the files. This `tar` must run from the folder ABOVE the
+project (note the `cd ..`), because the last argument is the project folder by
+name:
 
 ```bash
+cd ..
 tar -czf chess-review.tar.gz \
   --exclude='Time-Aware-Chess-Analysis/.git' \
   --exclude='Time-Aware-Chess-Analysis/.venv' \
@@ -67,21 +86,11 @@ tar -czf chess-review.tar.gz \
   Time-Aware-Chess-Analysis
 ```
 
-Before you share it, confirm the prebuilt interface made it in:
+If your project folder has a different name, use that name in the command. Before
+you share it, confirm the prebuilt interface made it in:
 
 ```bash
 tar -tzf chess-review.tar.gz | grep frontend/out/index.html
 ```
 
-If that prints nothing, you skipped Step 1. Build the interface, then package
-again.
-
-## What the user does
-
-They unpack the archive and run the install script for their system
-(`install/install.sh` on macOS or Linux, `install/install.ps1` on Windows). The
-install downloads the engine, the model, and the model weights, sets up the
-Python environments, and uses the prebuilt interface as-is. No Node.js, no web
-build, ever, on their machine. If the prebuilt interface is somehow missing from
-the package, the install stops early and tells you (the release builder) to run
-`install/prepare_release.sh`, and it never falls back to needing Node.js.
+If that prints nothing, you skipped the build step.

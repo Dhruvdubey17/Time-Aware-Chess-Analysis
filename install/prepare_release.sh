@@ -28,6 +28,48 @@ say "Building the interface into static files (frontend/out)"
 
 [ -f frontend/out/index.html ] || die "the build finished but frontend/out/index.html is missing. The interface did not export as static files; check frontend/next.config.ts still has output: \"export\"."
 
-say "Interface built."
-info "Prebuilt files are in frontend/out. Include that folder when you package the app."
-info "Next: follow install/RELEASE.md to package and share the release."
+say "Interface built. Packaging the release ..."
+
+# We build the shareable archive here so you cannot package before the interface
+# is built, and so it does not matter which folder you run this from (paths come
+# from this script's own location, not your shell's working directory). The
+# archive lands NEXT to the project folder, one level up, so it is never packed
+# inside itself.
+parent="$(dirname "$ROOT")"
+name="$(basename "$ROOT")"
+archive="$parent/chess-review.tar.gz"
+rm -f "$archive"
+# Include the prebuilt interface (frontend/out) and the bundled assets. Leave out
+# the big folders the user's install rebuilds (the Python envs, the downloaded
+# engine, the model weights, node_modules, build caches) and the private notes.
+tar -czf "$archive" -C "$parent" \
+  --exclude="$name/.git" \
+  --exclude="$name/.venv" \
+  --exclude="$name/.venv_maia" \
+  --exclude="$name/data" \
+  --exclude="$name/engines" \
+  --exclude="$name/frontend/node_modules" \
+  --exclude="$name/frontend/.next" \
+  --exclude='*/__pycache__' \
+  --exclude='*.pyc' \
+  --exclude='*/.pytest_cache' \
+  --exclude='*/.ruff_cache' \
+  --exclude='.DS_Store' \
+  --exclude="$name/BUILD.md" \
+  --exclude="$name/BUILD2.md" \
+  --exclude="$name/PLAN.md" \
+  --exclude="$name/context.md" \
+  --exclude='*chess-review.tar.gz' \
+  "$name" \
+  || die "could not create the release archive."
+
+# Prove the prebuilt interface actually made it in, so a broken package never
+# ships silently.
+tar -tzf "$archive" | grep -q "$name/frontend/out/index.html" \
+  || die "the archive is missing the prebuilt interface right after a build. Please report this."
+
+say "Release ready."
+info "Share this one file:"
+info "  $archive"
+info "Whoever you send it to unpacks it and runs install/install.sh (macOS or"
+info "Linux) or install/install.ps1 (Windows). They never need Node.js."

@@ -13,9 +13,11 @@
 # testing
 /coverage
 
-# next.js
+# next.js build cache (not the exported site)
 /.next/
-/out/
+# NOTE: /out/ (the exported static interface) is committed on purpose, so the app
+# ships prebuilt and installs with no Node.js. Rebuild it after changing the
+# frontend with:  bash install/prepare_release.sh
 
 # production
 /build

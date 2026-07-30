@@ -15,14 +15,20 @@ if (-not (Test-Path engines\STOCKFISH_PATH))   { Write-Host "Setup looks incompl
 
 $env:STOCKFISH_PATH = (Get-Content engines\STOCKFISH_PATH -Raw).Trim()
 
-# Find a free local port starting at 8000.
-$port = 8000
-while ($port -le 8020) {
-  $inUse = Get-NetTCPConnection -State Listen -LocalPort $port -ErrorAction SilentlyContinue
-  if (-not $inUse) { break }
-  $port++
-}
-if ($port -gt 8020) { Write-Host "No free port found between 8000 and 8020."; exit 1 }
+# Find a free local port in 8000..8020. We use the app's own Python (required
+# just above) to test-bind, so this matches the macOS/Linux launcher and does not
+# depend on the NetTCP cmdlets being available.
+$findPort = @"
+import socket
+for p in range(8000, 8021):
+    s = socket.socket()
+    try:
+        s.bind(('127.0.0.1', p)); s.close(); print(p); break
+    except OSError:
+        continue
+"@
+$port = (& .venv\Scripts\python.exe -c $findPort).Trim()
+if (-not $port) { Write-Host "No free port found between 8000 and 8020."; exit 1 }
 $url = "http://127.0.0.1:$port"
 
 Write-Host "Starting Chess Review on $url ..."

@@ -5,7 +5,7 @@
 # This only removes things inside this app folder that the setup made: the two
 # Python environments, the chess engine, the Maia model weights, the cached
 # analysis, and the built interface. It does NOT touch tools that live outside
-# this folder or were already on your machine, like Python, uv, or Node.
+# this folder or were already on your machine, like Python or uv.
 #
 # Run it with:  bash install/delete.sh     (add -y to skip the question)
 
@@ -18,7 +18,7 @@ info() { printf '    %s\n' "$*"; }
 
 say "This removes the Chess Review setup from:"
 info "$ROOT"
-info "It keeps Python, uv, Node, and anything outside this folder."
+info "It keeps Python, uv, and anything outside this folder."
 
 if [ "${1:-}" != "-y" ] && [ "${1:-}" != "--yes" ]; then
   printf '\nType y to continue: '
@@ -49,7 +49,7 @@ find data -type d -empty -delete 2>/dev/null || true
 rmdir data 2>/dev/null || true
 
 say "Done. The app setup has been removed."
-info "Python, uv, and Node were left in place."
+info "Python and uv were left in place."
 info "To set it up again later, run:  bash install/install.sh"
 info "If you also want to remove uv itself (only if nothing else uses it):"
 info "  rm -f \"\$HOME/.local/bin/uv\" && rm -rf \"\$HOME/.local/share/uv\" \"\$HOME/.cache/uv\""

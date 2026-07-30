@@ -14,12 +14,20 @@ cd "$ROOT"
 
 export STOCKFISH_PATH="$(cat engines/STOCKFISH_PATH)"
 
-# Find a free local port, starting at 8000.
-port=8000
-while lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; do
-  port=$((port + 1))
-  [ "$port" -gt 8020 ] && { echo "No free port found between 8000 and 8020." >&2; exit 1; }
-done
+# Find a free local port in 8000..8020. We use the app's own Python (already
+# required just below) to test-bind, so this needs no extra tool like lsof and
+# behaves the same on macOS and Linux.
+port="$(.venv/bin/python - <<'PY'
+import socket
+for p in range(8000, 8021):
+    s = socket.socket()
+    try:
+        s.bind(("127.0.0.1", p)); s.close(); print(p); break
+    except OSError:
+        continue
+PY
+)"
+[ -n "$port" ] || { echo "No free port found between 8000 and 8020." >&2; exit 1; }
 url="http://127.0.0.1:$port"
 
 echo "Starting Chess Review on $url ..."

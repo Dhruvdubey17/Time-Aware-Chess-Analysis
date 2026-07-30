@@ -61,8 +61,8 @@ just close the window.
 
 To clear the app from your machine, run the line for your system. It removes what
 the setup created inside this folder (the environments, the chess engine, the Maia
-weights, the cache, and the built interface). It leaves Python, uv, and Node alone,
-since those live outside this folder and you may use them elsewhere.
+weights, and the cache). It leaves Python and uv alone, since those live outside
+this folder and you may use them elsewhere.
 
 **macOS or Linux**
 

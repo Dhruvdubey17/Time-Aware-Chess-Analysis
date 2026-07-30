@@ -3,8 +3,9 @@
 #
 # You do not need to know anything technical. This script sets up everything the
 # app needs on your own machine: a small chess engine, the review programs, and
-# the web interface. It downloads what it needs while it runs. After it finishes,
-# it prints one command to start the app.
+# the human-difficulty model. The interface is already built and ships with the
+# app, so you do NOT need Node.js or any web tools. It downloads what it needs
+# while it runs. After it finishes, it prints one command to start the app.
 #
 # It never asks for your password and never changes system settings. Everything
 # lives inside this folder.
@@ -19,6 +20,10 @@ say()  { printf '\n\033[1m==> %s\033[0m\n' "$*"; }
 info() { printf '    %s\n' "$*"; }
 die()  { printf '\n\033[1;31mSetup stopped: %s\033[0m\n' "$*" >&2; exit 1; }
 
+# Temporary things THIS run creates. We remove them ONLY after a fully
+# successful self-test (see the end). Nothing the app needs is ever listed here.
+CLEANUP=()
+
 OS="$(uname -s)"
 ARCH="$(uname -m)"
 say "Setting up Chess Review for $OS on $ARCH"
@@ -31,13 +36,17 @@ say "Step 1 of 6: preparing the Python toolchain"
 if ! command -v uv >/dev/null 2>&1; then
   info "Downloading uv (one small program, no admin rights needed) ..."
   curl -LsSf https://astral.sh/uv/install.sh | sh || die "could not download uv. Check your internet connection."
+  # The installer drops uv here; put it on PATH for the rest of this run.
   export PATH="$HOME/.local/bin:$PATH"
 fi
 command -v uv >/dev/null 2>&1 || die "uv is not on the PATH after install. Open a new terminal and run this again."
+# A uv-managed Python, so we never depend on a system Python being present.
 uv python install 3.12 || die "could not install Python 3.12."
 
 # ---------------------------------------------------------------------------
 # 2. The main environment: the review service and web server. No PyTorch here.
+#    uv creates the interpreter at .venv/bin/python; we call it by that exact
+#    path everywhere, so nothing here relies on a system Python.
 # ---------------------------------------------------------------------------
 say "Step 2 of 6: installing the review service"
 uv venv .venv --python 3.12 --clear
@@ -56,13 +65,20 @@ uv pip install --python .venv -q \
 # ---------------------------------------------------------------------------
 say "Step 3 of 6: installing the human-difficulty model (this is the largest download)"
 uv venv .venv_maia --python 3.12 --clear
-if [ "$OS" = "Linux" ]; then
-  # Default PyTorch on Linux pulls a huge GPU build; we only need the CPU one.
-  uv pip install --python .venv_maia -q torch --index-url https://download.pytorch.org/whl/cpu \
-    || die "could not install PyTorch (CPU)."
-fi
+# PyTorch is the flakiest dependency on a fresh machine, so pin it and install a
+# known CPU build explicitly. On Linux the default index pulls a huge GPU build,
+# so use PyTorch's CPU index there. On macOS the normal wheel is already CPU
+# (there is no CUDA on Mac), so no special index is needed. torch 2.13.0 has a
+# Python 3.12 CPU wheel for macOS arm64, Linux x86_64, and Windows.
+torch_index=""
+[ "$OS" = "Linux" ] && torch_index="--index-url https://download.pytorch.org/whl/cpu"
+# shellcheck disable=SC2086
+uv pip install --python .venv_maia -q "torch==2.13.0" $torch_index \
+  || die "could not install PyTorch (the CPU build torch==2.13.0 for Python 3.12). This is the most common failure on a fresh machine. Check your internet connection and run this again. If it keeps failing, see https://pytorch.org/get-started/locally/ for a CPU build for your system."
+# The rest come from the normal index. torch is already installed and satisfies
+# maia2, so this step does not touch it. numpy is held below 2 on purpose.
 uv pip install --python .venv_maia -q \
-  "numpy<2" torch maia2 "python-chess>=1.11" pandas pyarrow gdown requests tqdm pyzstd einops scikit-learn pyyaml \
+  "numpy<2" maia2 "python-chess>=1.11" pandas pyarrow gdown requests tqdm pyzstd einops scikit-learn pyyaml \
   || die "could not install the Maia model packages."
 
 # ---------------------------------------------------------------------------
@@ -80,25 +96,29 @@ case "$OS-$ARCH" in
   Linux-x86_64)          asset="stockfish-ubuntu-x86-64-avx2.tar" ;;
   *) die "no official Stockfish build for $OS-$ARCH. Please report your platform." ;;
 esac
+# Download the archive and unpack it into a scratch folder. Both the archive and
+# the unpacked files are temporary, so we clean them up on success (see the end).
 rm -rf engines/_tmp && mkdir -p engines/_tmp
+CLEANUP+=("engines/_tmp")
 info "Downloading $asset ..."
 curl -L --fail -o "engines/_tmp/$asset" \
   "https://github.com/official-stockfish/Stockfish/releases/latest/download/$asset" \
   || die "could not download Stockfish. Check your internet connection."
-tar -xf "engines/_tmp/$asset" -C engines/_tmp
+tar -xf "engines/_tmp/$asset" -C engines/_tmp || die "could not unpack the Stockfish download."
+# The binary sits inside the archive under a stockfish* name; find it, ignoring
+# the .tar itself.
 sf_bin="$(find engines/_tmp -type f -name 'stockfish*' ! -name '*.tar' | head -n1)"
 [ -n "$sf_bin" ] || die "could not find the Stockfish program inside the download."
 cp "$sf_bin" engines/stockfish
 chmod +x engines/stockfish
-rm -rf engines/_tmp
 echo "$ROOT/engines/stockfish" > engines/STOCKFISH_PATH
 info "Stockfish ready at engines/stockfish"
 fi
 
 # ---------------------------------------------------------------------------
-# 5. Maia weights and the web interface.
+# 5. Maia weights, and confirm the prebuilt interface is here.
 # ---------------------------------------------------------------------------
-say "Step 5 of 6: downloading Maia weights and preparing the interface"
+say "Step 5 of 6: downloading Maia weights and checking the interface"
 info "Downloading Maia weights (blitz and rapid) ..."
 .venv_maia/bin/python - <<'PY' || die "could not download the Maia weights."
 from maia2 import model
@@ -107,43 +127,52 @@ for kind in ("blitz", "rapid"):
 print("maia weights ready")
 PY
 
-if [ -f frontend/out/index.html ]; then
-  info "Using the interface that ships with this release."
-elif command -v npm >/dev/null 2>&1; then
-  info "Building the interface with Node ..."
-  ( cd frontend && npm ci --silent && NEXT_PUBLIC_API_BASE="" npm run build >/dev/null ) \
-    || die "could not build the interface."
-else
-  die "the interface is not prebuilt and Node.js was not found. Install Node.js 18+ and run this again, or use a release that includes the prebuilt interface."
+# The interface ships prebuilt as static files, so the user never needs Node.js
+# and never runs a build. One prebuilt bundle serves macOS, Windows, and Linux.
+# If it is missing this is a broken release, not a user problem, so the message
+# is aimed at whoever built the release, and we never fall back to needing Node.
+if [ ! -f frontend/out/index.html ]; then
+  die "this release is missing the prebuilt interface (frontend/out/index.html). Whoever built this release must run 'bash install/prepare_release.sh' and include frontend/out in the package. See install/RELEASE.md."
 fi
+info "The interface is prebuilt and ready, so no Node.js is needed."
 
 # ---------------------------------------------------------------------------
-# 6. Self-test: prove every piece actually works before we say we are done.
+# 6. Self-test: prove every critical piece actually works before we say we are
+#    done. Each check fails with its own clear message so a broken piece is
+#    named, never a generic "something went wrong".
 # ---------------------------------------------------------------------------
 say "Step 6 of 6: checking that everything works"
-STOCKFISH_PATH="$ROOT/engines/stockfish" .venv/bin/python - <<'PY' || die "the review service self-test failed."
-import os, chess, chess.engine
-import backend.intake, backend.analyze, backend.api  # imports must succeed
-from chess_strength.thinktime import load_mapping
-from backend import book
-load_mapping("assets/thinktime")  # the trained model must load
-r = book.open_book({})  # the bundled opening book must load and answer
-assert r is not None and book.book_moves(r, chess.Board().fen()), "opening book missing or empty"
-r.close()
-eng = chess.engine.SimpleEngine.popen_uci(os.environ["STOCKFISH_PATH"])
-eng.analyse(chess.Board(), chess.engine.Limit(nodes=1000))
-eng.quit()
-print("review service ok")
-PY
+
+.venv/bin/python -c "import backend.intake, backend.analyze, backend.api; from chess_strength.thinktime import load_mapping; load_mapping('assets/thinktime'); print('review service ok')" \
+  || die "the review service environment is broken (its imports or the think-time model failed to load)."
+
+.venv/bin/python -c "import chess; from backend import book; r=book.open_book({}); assert r is not None and book.book_moves(r, chess.Board().fen()), 'empty'; r.close(); print('book ok')" \
+  || die "the bundled opening book (assets/book/openings.bin) is missing or unreadable."
+
+STOCKFISH_PATH="$ROOT/engines/stockfish" .venv/bin/python -c "import os, chess, chess.engine; e=chess.engine.SimpleEngine.popen_uci(os.environ['STOCKFISH_PATH']); e.analyse(chess.Board(), chess.engine.Limit(nodes=1000)); e.quit(); print('stockfish ok')" \
+  || die "Stockfish did not answer a UCI handshake. The engine at engines/stockfish may be the wrong build for this machine."
+
+# The Maia venv is native arm64 on Apple Silicon; the main venv can run under
+# Rosetta, so force the child native or its arm64 numpy will not load.
 prefix=""; [ "$OS" = "Darwin" ] && prefix="arch -arm64"
-$prefix .venv_maia/bin/python - <<'PY' || die "the Maia model self-test failed."
-import maia2, torch  # noqa: F401
-from pathlib import Path
-w = Path("data/processed/maia_val/weights")
-assert (w / "blitz_model.pt").exists() and (w / "rapid_model.pt").exists(), "weights missing"
-print("maia model ok")
-PY
-[ -f frontend/out/index.html ] || die "the interface is missing."
+$prefix .venv_maia/bin/python -c "import torch; from maia2 import model; model.from_pretrained(type='blitz', device='cpu', save_root='data/processed/maia_val/weights'); print('maia ok')" \
+  || die "the Maia-2 model failed to load (weights missing or corrupt, or a torch/numpy mismatch)."
+
+[ -f frontend/out/index.html ] || die "the prebuilt interface (frontend/out) is missing from this release."
+
+# --- Success-only cleanup -------------------------------------------------
+# We only reach here if every step above passed (set -e plus die exit on any
+# failure), so a failed or partial install leaves everything in place for
+# debugging. Remove ONLY the temporary things this run created, listed above.
+if [ "${#CLEANUP[@]}" -gt 0 ]; then
+  say "Cleaning up temporary download files"
+  for p in "${CLEANUP[@]}"; do
+    if [ -e "$p" ]; then
+      info "removing $p (Stockfish download and unpacked files, no longer needed)"
+      rm -rf "$p"
+    fi
+  done
+fi
 
 say "All set."
 info "Start the app any time with this one command:"

@@ -3,7 +3,7 @@
 # This only removes things inside this app folder that the setup made: the two
 # Python environments, the chess engine, the Maia model weights, the cached
 # analysis, and the built interface. It does NOT touch tools that live outside
-# this folder or were already on your machine, like Python, uv, or Node.
+# this folder or were already on your machine, like Python or uv.
 #
 # Run it with:
 #   powershell -ExecutionPolicy Bypass -File install\delete.ps1   (add -y to skip the question)
@@ -14,7 +14,7 @@ Set-Location $Root
 
 Write-Host "`nThis removes the Chess Review setup from:" -ForegroundColor Cyan
 Write-Host "    $Root"
-Write-Host "    It keeps Python, uv, Node, and anything outside this folder."
+Write-Host "    It keeps Python, uv, and anything outside this folder."
 
 if ($args[0] -ne "-y" -and $args[0] -ne "--yes") {
   $ans = Read-Host "`nType y to continue"
@@ -38,5 +38,5 @@ if (Test-Path frontend\node_modules) {
 }
 
 Write-Host "`nDone. The app setup has been removed." -ForegroundColor Cyan
-Write-Host "    Python, uv, and Node were left in place."
+Write-Host "    Python and uv were left in place."
 Write-Host "    To set it up again later, run:  powershell -ExecutionPolicy Bypass -File install\install.ps1"

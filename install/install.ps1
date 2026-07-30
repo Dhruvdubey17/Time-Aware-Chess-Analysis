@@ -90,7 +90,7 @@ if (Test-Path frontend\out\index.html) {
 # 6. Self-test.
 Say "Step 6 of 6: checking that everything works"
 $env:STOCKFISH_PATH = "$Root\engines\stockfish.exe"
-& .venv\Scripts\python.exe -c "import os, chess, chess.engine; import backend.intake, backend.analyze, backend.api; from chess_strength.thinktime import load_mapping; load_mapping('assets/thinktime'); e=chess.engine.SimpleEngine.popen_uci(os.environ['STOCKFISH_PATH']); e.analyse(chess.Board(), chess.engine.Limit(nodes=1000)); e.quit(); print('review service ok')"
+& .venv\Scripts\python.exe -c "import os, chess, chess.engine; import backend.intake, backend.analyze, backend.api; from chess_strength.thinktime import load_mapping; from backend import book; load_mapping('assets/thinktime'); r=book.open_book({}); assert r is not None and book.book_moves(r, chess.Board().fen()), 'opening book missing or empty'; r.close(); e=chess.engine.SimpleEngine.popen_uci(os.environ['STOCKFISH_PATH']); e.analyse(chess.Board(), chess.engine.Limit(nodes=1000)); e.quit(); print('review service ok')"
 if ($LASTEXITCODE -ne 0) { Die "the review service self-test failed." }
 & .venv_maia\Scripts\python.exe -c "import maia2, torch; from pathlib import Path; w=Path('data/processed/maia_val/weights'); assert (w/'blitz_model.pt').exists() and (w/'rapid_model.pt').exists(); print('maia model ok')"
 if ($LASTEXITCODE -ne 0) { Die "the Maia model self-test failed." }

@@ -14,8 +14,14 @@ multipv: 4
 # lopsided positions from dominating.
 eval_clip_cp: 1000
 
-# First plies of a game are opening theory; flag them so we can drop them.
+# Where the "opening" phase ends, for the think-time model's phase feature only.
+# This is NOT a book label. Real book detection reads the bundled offline opening
+# book per position (see backend/book.py).
 book_plies: 12
+
+# Book detection reads a small bundled Polyglot book (assets/book/openings.bin)
+# with no network. Uncomment book_path to point at a different book.
+# book_path: /path/to/openings.bin
 
 # A move faster than this is likely a pre-move, not a real decision.
 premove_time_threshold_s: 0.3
@@ -58,6 +64,13 @@ classify:
   clock_danger_s: 60.0
   pressure_time_ref_s: 10.0
   pressure_base: 0.5
+  # Bullet time pressure, normalized to base time (absolute seconds are meaningless
+  # when the whole game is under a minute). Pressure ramps below this fraction of
+  # the base clock; the fast term uses a bullet-scale reference.
+  bullet_clock_danger_frac: 0.25
+  bullet_pressure_time_ref_s: 3.0
+  # Mouse-slip guardrail: a big Win% drop at floor time is a likely slip.
+  misclick_wpl_min: 20.0
   # Option B skill cutoffs (skill is in [0,1]).
   cut_excellent: 0.15
   cut_great: 0.35

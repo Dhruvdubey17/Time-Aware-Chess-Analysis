@@ -8,6 +8,7 @@ Phase 8 runner on the two-month table.
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from chess_strength.model_gbm import (
     CLOCK_FEATURES,
@@ -58,6 +59,7 @@ def test_build_matrix_excludes_target_and_keys():
 
 
 def test_gbm_recovers_signal():
+    pytest.importorskip("lightgbm")  # optional research dep; skip when absent
     df = _synthetic(1800)
     ids = df["player_id"].to_numpy()
     rng = np.random.default_rng(1)

@@ -121,7 +121,9 @@ def test_baseline_only_when_no_clocks():
 def test_computes_missing_evals_and_runs_time_aware():
     _skip_if_no_engine()
     _skip_if_no_maia()
-    r = _analyze("chesscom_clk.pgn")  # clocks present, evals must be computed
+    # Clocks present, evals must be computed, and the game leaves book so there
+    # are real non-book moves for the time-aware layer to score.
+    r = _analyze("chesscom_midgame.pgn")
     assert r.time_aware_available
     _valid_labels(r)
     # Every non-book move got a difficulty score and a time-aware label.
@@ -146,6 +148,46 @@ def test_uses_pgn_evals_and_respects_upgrade_invariants():
             assert m["clock_before_s"] is not None and m["clock_before_s"] < 60.0
             assert m["pressure"] and m["pressure"] > 0.0
             assert m["wpl"] <= 10.0  # only good moves are eligible
+            assert m["premove_status"] == "genuine"  # premoves can never upgrade
+
+
+@pytest.mark.engine
+@pytest.mark.maia
+def test_bullet_chesscom_time_aware_and_premoves_never_upgraded():
+    # The real chess.com bullet game (tenths), so premoves are detected and the
+    # time-aware review runs. The one thing that must never happen: a premove
+    # earning a found-under-pressure upgrade.
+    _skip_if_no_engine()
+    _skip_if_no_maia()
+    r = _analyze("chesscom_bullet.pgn")
+    assert r.regime == "bullet" and r.time_aware_available
+    assert "reliable" in r.time_aware_note  # tenths clocks
+    _valid_labels(r)
+    premoves = [m for m in r.moves if m["premove_status"] == "premove"]
+    assert premoves  # this game has real premoves
+    assert all(not m["upgraded"] for m in premoves)
+    assert all(m["under_pressure"] in (None, "insufficient_evidence") for m in premoves)
+    # Every upgrade is a genuine, at-the-board move, never a slip.
+    for m in r.moves:
+        if m["upgraded"]:
+            assert m["premove_status"] == "genuine" and not m["misclick_suspect"]
+            assert m["under_pressure"] == "found_under_pressure"
+
+
+@pytest.mark.engine
+@pytest.mark.maia
+def test_bullet_lichess_whole_second_is_limited():
+    # Public Lichess bullet is whole-second, so sub-second moves are ambiguous and
+    # the review says so plainly; none of them may be upgraded.
+    _skip_if_no_engine()
+    _skip_if_no_maia()
+    r = _analyze("lichess_bullet.pgn")
+    assert r.regime == "bullet" and r.time_aware_available
+    assert "limited" in r.time_aware_note  # whole-second honesty
+    _valid_labels(r)
+    for m in r.moves:
+        if m["premove_status"] in ("premove", "sub_floor_ambiguous"):
+            assert not m["upgraded"]
 
 
 @pytest.mark.engine

@@ -88,6 +88,17 @@ class ClassifyConfig:
     pressure_time_ref_s: float = 10.0
     pressure_base: float = 0.5
 
+    # Bullet time pressure. Absolute-second thresholds mean nothing when the whole
+    # game is under a minute, so the clock factor is normalized to the base time:
+    # zero with most of the clock left, ramping to one near the flag once below
+    # this fraction of the base. The fast term uses a bullet-scale reference.
+    bullet_clock_danger_frac: float = 0.25
+    bullet_pressure_time_ref_s: float = 3.0
+    # Mouse-slip guardrail: a big Win% drop played at floor time (a premove or a
+    # sub-second move) is likely a slip, not a considered move, so it can never
+    # count as a find under pressure.
+    misclick_wpl_min: float = 20.0
+
     # Option B skill-of-move cutoffs (skill is in [0,1]).
     cut_excellent: float = 0.15
     cut_great: float = 0.35
@@ -218,6 +229,23 @@ def pressure_modifier(residual_s: float, clock_before_s: float, c: ClassifyConfi
     """
     clock_factor = min(1.0, max(0.0, c.clock_danger_s - clock_before_s) / c.clock_danger_s)
     fast = min(1.0, max(0.0, -residual_s) / c.pressure_time_ref_s)
+    return clock_factor * (c.pressure_base + (1.0 - c.pressure_base) * fast)
+
+
+def pressure_modifier_bullet(residual_s: float, clock_before_s: float,
+                             base_s: float, c: ClassifyConfig) -> float:
+    """Genuine time pressure for bullet, in [0,1], normalized to the base clock.
+
+    A bullet game is a minute or two total, so the blitz danger zone in absolute
+    seconds is useless here. The clock factor is a fraction of the base instead:
+    zero with most of the time left, ramping to one near the flag once the clock
+    drops below `bullet_clock_danger_frac` of the base. The fast term (moving
+    quicker than the bullet model expects) works like blitz, at a bullet scale.
+    """
+    frac = clock_before_s / base_s if base_s and base_s > 0 else 1.0
+    d = c.bullet_clock_danger_frac
+    clock_factor = min(1.0, max(0.0, d - frac) / d) if d > 0 else 0.0
+    fast = min(1.0, max(0.0, -residual_s) / c.bullet_pressure_time_ref_s)
     return clock_factor * (c.pressure_base + (1.0 - c.pressure_base) * fast)
 
 

@@ -35,14 +35,18 @@ def test_lichess_normalized_move_fields():
     assert first.fen_before.startswith("rnbqkbnr/pppppppp")
     assert first.clock_s == 180.0  # 0:03:00
     assert first.eval_cp_white == 15  # 0.15 pawns -> 15 cp, White POV
-    assert first.phase == "opening" and first.in_book
+    assert first.phase == "opening"
 
 
-def test_book_flag_flips_after_book_plies():
+def test_intake_leaves_book_to_analysis():
+    # The old rule stamped the first N plies as Book from the ply number alone,
+    # which hid real early blunders. Parsing no longer decides book at all; real
+    # theory detection is a live per-position lookup in the analysis step.
+    from dataclasses import fields
+
     r = _one("lichess_clk_eval.pgn")
-    by_ply = {m.ply: m for m in r.moves}
-    assert by_ply[12].in_book  # last book ply
-    assert not by_ply[13].in_book  # first out of book
+    assert "in_book" not in {f.name for f in fields(r.moves[0])}
+    assert r.moves[0].phase == "opening"  # phase still works as before
 
 
 def test_eval_stored_white_pov_for_black_move():

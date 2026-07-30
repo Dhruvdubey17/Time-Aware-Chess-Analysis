@@ -125,7 +125,11 @@ STOCKFISH_PATH="$ROOT/engines/stockfish" .venv/bin/python - <<'PY' || die "the r
 import os, chess, chess.engine
 import backend.intake, backend.analyze, backend.api  # imports must succeed
 from chess_strength.thinktime import load_mapping
+from backend import book
 load_mapping("assets/thinktime")  # the trained model must load
+r = book.open_book({})  # the bundled opening book must load and answer
+assert r is not None and book.book_moves(r, chess.Board().fen()), "opening book missing or empty"
+r.close()
 eng = chess.engine.SimpleEngine.popen_uci(os.environ["STOCKFISH_PATH"])
 eng.analyse(chess.Board(), chess.engine.Limit(nodes=1000))
 eng.quit()

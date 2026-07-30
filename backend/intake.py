@@ -27,12 +27,16 @@ from chess_strength.stream_filter import classify_time_control
 # parse_moves, so anything near this magnitude is a mate not a normal eval.
 MATE_CP = 10000
 
-# First plies are opening theory. Matches config/default.yaml book_plies.
+# Where the "opening" phase ends, for the think-time model's phase feature only.
+# This is NOT a book label. Real book detection is a live theory lookup in the
+# analysis step (backend/book.py); parsing never decides book. Matches
+# config/default.yaml book_plies.
 DEFAULT_BOOK_PLIES = 12
 
-# The time-aware mapping and the Maia models were fitted on blitz and rapid
-# only. Other speeds still get a baseline review, never a faked time signal.
-TIME_AWARE_REGIMES = {"blitz", "rapid"}
+# Speeds that carry a fitted think-time mapping, so the time-aware review can
+# run. Bullet has its own mapping (assets/thinktime/bullet); its reliability is
+# limited on whole-second Lichess clocks, which analyze states honestly.
+TIME_AWARE_REGIMES = {"blitz", "rapid", "bullet"}
 
 _STANDARD_VARIANTS = {"", "standard", "chess", "normal"}
 
@@ -52,7 +56,6 @@ class Move:
     clock_s: float | None
     eval_cp_white: int | None
     phase: str  # opening, middlegame, or endgame
-    in_book: bool
 
 
 @dataclass
@@ -164,7 +167,6 @@ def _parse_moves(game: chess.pgn.Game, book_plies: int) -> tuple[list[Move], boo
                 clock_s=clock,
                 eval_cp_white=eval_cp_white,
                 phase=game_phase(fen_before, ply, book_plies),
-                in_book=ply <= book_plies,
             )
         )
         board.push(move)

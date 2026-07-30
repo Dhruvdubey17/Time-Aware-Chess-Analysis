@@ -1,0 +1,13 @@
+[Event "Live Chess"]
+[Site "Chess.com"]
+[Date "2024.02.10"]
+[Round "-"]
+[White "pawn_stormer"]
+[Black "knight_owl"]
+[Result "*"]
+[WhiteElo "1420"]
+[BlackElo "1408"]
+[TimeControl "300"]
+[Link "https://www.chess.com/game/live/2000000001"]
+
+1. e4 { [%clk 0:04:57] } 1... e5 { [%clk 0:04:58] } 2. Nf3 { [%clk 0:04:52] } 2... Nc6 { [%clk 0:04:54] } 3. Bc4 { [%clk 0:04:48] } 3... Bc5 { [%clk 0:04:47] } 4. d3 { [%clk 0:04:42] } 4... Qf6 { [%clk 0:04:42] } 5. Nc3 { [%clk 0:04:34] } 5... Nge7 { [%clk 0:04:36] } 6. O-O { [%clk 0:04:27] } 6... h6 { [%clk 0:04:28] } 7. a3 { [%clk 0:04:22] } 7... g5 { [%clk 0:04:24] } 8. b4 { [%clk 0:04:13] } 8... Bb6 { [%clk 0:04:14] } 9. Na4 { [%clk 0:04:07] } 9... g4 { [%clk 0:04:07] } *

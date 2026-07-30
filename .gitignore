@@ -2,6 +2,7 @@
 PLAN.md
 context.md
 BUILD.md
+BUILD2.md
 
 # All runtime data (downloads, parsed parquet, feature tables)
 data/

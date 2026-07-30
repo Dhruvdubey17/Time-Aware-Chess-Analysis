@@ -1,0 +1,26 @@
+{
+  "regime": "bullet",
+  "numeric": [
+    "maia_dispersion",
+    "norm_clock_remaining",
+    "move_number"
+  ],
+  "categorical": [
+    "game_phase",
+    "rating_band",
+    "side",
+    "increment"
+  ],
+  "target": "log_time_spent",
+  "min_think_s": 0.3,
+  "n_fit": 700000,
+  "heldout_r2": 0.15909876086137353,
+  "maia_spearman_rho": 0.13555458233822962,
+  "premove_rates": {
+    "premove": 0,
+    "sub_floor_ambiguous": 925325,
+    "genuine": 3102772,
+    "unknown": 0
+  },
+  "note": "Whole-second Lichess clocks; sub-second thinks are floored."
+}

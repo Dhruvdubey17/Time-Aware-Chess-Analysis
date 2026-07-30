@@ -86,8 +86,9 @@ Reviewing a pasted or uploaded game uses no internet at all. The only time the
 app goes online is if you ask it to fetch a game from chess.com, and then only
 to get that one game.
 
-The time-aware second opinion is available for blitz and rapid games that
-include move times. Games without move times still get the full normal review.
+The time-aware second opinion is available for blitz, rapid, and bullet games
+that include move times. Games without move times still get the full normal
+review.
 
 ## Good to know
 
@@ -96,6 +97,9 @@ include move times. Games without move times still get the full normal review.
   Windows and Linux machines.
 - On Linux, the chess engine download supports Intel and AMD (x86_64) machines.
   Linux on ARM is not covered yet.
-- Bullet games get the normal review but not the time-aware one. Time pressure is
-  measured for blitz and rapid, where it has been checked; bullet is a possible
-  later addition.
+- Bullet games get the time-aware review too, with one honest limit. On chess.com
+  bullet the clocks carry tenths of a second, so premoves are spotted and the
+  under-pressure highlights are reliable. On Lichess bullet the public clocks are
+  whole seconds only, so a move under a second cannot be told apart from a premove;
+  those moves are still shown, but never credited as a find under pressure, and the
+  review says so.

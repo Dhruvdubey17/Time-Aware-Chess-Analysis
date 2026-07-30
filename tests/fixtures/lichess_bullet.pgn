@@ -1,0 +1,13 @@
+[Event "Rated Bullet game"]
+[Site "https://lichess.org/abcd1234"]
+[Date "????.??.??"]
+[Round "?"]
+[White "tal_fan"]
+[Black "petrosian_fan"]
+[Result "1-0"]
+[WhiteElo "1650"]
+[BlackElo "1640"]
+[TimeControl "60"]
+[Termination "Normal"]
+
+1. e4 { [%clk 0:00:58] } 1... c5 { [%clk 0:00:59] } 2. Nf3 { [%clk 0:00:57] } 2... d6 { [%clk 0:00:57] } 3. d4 { [%clk 0:00:54] } 3... cxd4 { [%clk 0:00:57] } 4. Nxd4 { [%clk 0:00:54] } 4... Nf6 { [%clk 0:00:56] } 5. Nc3 { [%clk 0:00:53] } 5... a6 { [%clk 0:00:55] } 6. Be2 { [%clk 0:00:51] } 6... e5 { [%clk 0:00:55] } 7. Nb3 { [%clk 0:00:51] } 7... Be7 { [%clk 0:00:53] } 8. O-O { [%clk 0:00:50] } 8... O-O { [%clk 0:00:52] } 9. Be3 { [%clk 0:00:47] } 9... Be6 { [%clk 0:00:52] } 10. Nd5 { [%clk 0:00:46] } 10... Nbd7 { [%clk 0:00:51] } 11. Qd3 { [%clk 0:00:46] } 11... Rc8 { [%clk 0:00:49] } 1-0

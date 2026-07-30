@@ -11,11 +11,29 @@ deserves more credit than the same move with all the time in the world.
 
 Everything runs on your machine. Your games are not sent anywhere.
 
+## Get the app
+
+First get the project folder onto your machine. Two ways:
+
+- With git, which also lets you update later with `git pull`:
+
+```bash
+git clone https://github.com/Dhruvdubey17/Time-Aware-Chess-Analysis.git
+```
+
+- Without git: on the GitHub page use the green **Code** button, **Download
+  ZIP**, then unzip it.
+
+Either way you end up with a `Time-Aware-Chess-Analysis` folder. The interface
+ships inside it already built, so you do not need Node.js or any web tools. On
+Windows, the git option needs Git for Windows; the ZIP option needs nothing
+extra.
+
 ## Install
 
-You only do this once. Open a terminal in this folder and run the line for your
-system. It downloads what it needs and sets everything up. It never asks for
-your password.
+You only do this once. Open a terminal in the folder from the step above and run
+the line for your system. It downloads what it needs and sets everything up. It
+never asks for your password.
 
 **macOS or Linux**
 

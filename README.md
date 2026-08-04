@@ -66,6 +66,15 @@ powershell -ExecutionPolicy Bypass -File install\launch.ps1
 Your browser opens to the app. To stop it, press Ctrl+C in that terminal, or
 just close the window.
 
+You can add your chess.com username to open straight to your games and stay on
+that account (refreshing keeps you there):
+
+```bash
+bash install/launch.sh yourusername
+```
+
+On Windows: `powershell -ExecutionPolicy Bypass -File install\launch.ps1 yourusername`.
+
 ## How to use it
 
 1. Paste a game, or upload a `.pgn` file, or type a chess.com username to pull a

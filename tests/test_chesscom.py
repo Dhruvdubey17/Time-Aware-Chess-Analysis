@@ -83,6 +83,29 @@ def test_empty_month_is_a_clear_error(mock_net):
         chesscom.fetch_month("tester", "2026/06")
 
 
+def test_fetch_month_falls_back_to_last_month_with_games(monkeypatch):
+    # The newest archive month is empty (a quiet current month). The default view
+    # should fall back to the most recent month that has games, not error.
+    archives = {"archives": [
+        "https://api.chess.com/pub/player/tester/games/2026/07",
+        "https://api.chess.com/pub/player/tester/games/2026/08",
+    ]}
+
+    def fake(url: str) -> dict:
+        if url.endswith("/games/archives"):
+            return archives
+        if url.endswith("/2026/08"):
+            return {"games": []}  # nothing played yet this month
+        if url.endswith("/2026/07"):
+            return MONTH_07
+        raise chesscom.ChessComError("not_found")
+
+    monkeypatch.setattr(chesscom, "_get", fake)
+    res = chesscom.fetch_month("tester")  # no month -> fall back to last with games
+    assert res["month"] == "2026/07"
+    assert len(res["games"]) == 2  # Chess960 still filtered out
+
+
 def test_unknown_user_is_a_clear_error(monkeypatch):
     monkeypatch.setattr(chesscom, "_get",
                         lambda url: (_ for _ in ()).throw(chesscom.ChessComError("not_found")))

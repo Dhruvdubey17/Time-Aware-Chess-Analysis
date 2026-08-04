@@ -84,10 +84,14 @@ class ChessComGameBody(BaseModel):
 
 @app.get("/api/health")
 def health() -> dict:
+    # locked_user is set when the launcher was started with a chess.com username
+    # (bash install/launch.sh <username>). The frontend then opens straight to
+    # that account's games and stays there across refreshes.
     return {
         "ok": True,
         "stockfish": os.environ.get("STOCKFISH_PATH") or _CFG.get("stockfish_path"),
         "maia_available": maia_client.available(),
+        "locked_user": (os.environ.get("CHESS_REVIEW_USER") or "").strip() or None,
     }
 
 

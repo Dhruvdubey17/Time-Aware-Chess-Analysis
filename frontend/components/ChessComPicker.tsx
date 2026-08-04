@@ -9,11 +9,13 @@ import type { ChessComGamesResponse } from "@/lib/types";
 export default function ChessComPicker({
   initial,
   username,
+  locked = false,
   onPick,
   onBack,
 }: {
   initial: ChessComGamesResponse;
   username: string;
+  locked?: boolean;
   onPick: (pgn: string) => void;
   onBack: () => void;
 }) {
@@ -35,9 +37,13 @@ export default function ChessComPicker({
 
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <button onClick={onBack} className="mb-4 text-sm text-muted hover:text-primary">
-        ← back
-      </button>
+      {/* When locked to a launch username, the games page is home, so there is
+          nowhere to go back to. */}
+      {!locked && (
+        <button onClick={onBack} className="mb-4 text-sm text-muted hover:text-primary">
+          ← back
+        </button>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-semibold">{username}&apos;s games</h1>

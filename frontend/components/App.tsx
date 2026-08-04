@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { intake, runAnalysis } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { chesscomGames, getLockedUser, intake, runAnalysis } from "@/lib/api";
 import type {
   AnalysisResult,
   ChessComGame,
@@ -16,6 +16,7 @@ import Landing from "./Landing";
 import Progress from "./Progress";
 
 type Phase =
+  | { kind: "loading" }
   | { kind: "input" }
   | { kind: "picker"; games: GameSummary[] }
   | { kind: "chesscom"; resp: ChessComGamesResponse; username: string }
@@ -31,10 +32,43 @@ function friendly(e: unknown): string {
 }
 
 export default function App() {
-  const [phase, setPhase] = useState<Phase>({ kind: "input" });
+  const [phase, setPhase] = useState<Phase>({ kind: "loading" });
   const [pgn, setPgn] = useState("");
   const [progress, setProgress] = useState<JobProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Set when the launcher was started with a chess.com username. It makes the
+  // games page the app's home: we open there and go back there, not the landing
+  // screen.
+  const [locked, setLocked] = useState<{ user: string; resp: ChessComGamesResponse } | null>(null);
+
+  // On load, ask the server whether it was launched locked to a user. If so, open
+  // straight to that account's games. A refresh reruns this, so a locked launch
+  // always lands on the games page.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const user = await getLockedUser();
+        if (!user) {
+          if (!cancelled) setPhase({ kind: "input" });
+          return;
+        }
+        const resp = await chesscomGames(user);
+        if (cancelled) return;
+        setLocked({ user, resp });
+        setPhase({ kind: "chesscom", resp, username: user });
+      } catch (e) {
+        // Bad username or a fetch problem: fall back to the normal landing so the
+        // app still works, and show what went wrong.
+        if (cancelled) return;
+        setError(friendly(e));
+        setPhase({ kind: "input" });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const analyze = async (pgnText: string, index: number) => {
     setPgn(pgnText);
@@ -45,7 +79,7 @@ export default function App() {
       setPhase({ kind: "analysis", result });
     } catch (e) {
       setError(friendly(e));
-      setPhase({ kind: "input" });
+      back();
     }
   };
 
@@ -68,12 +102,21 @@ export default function App() {
     }
   };
 
-  const reset = () => {
+  // Home. For a locked launch that is the account's games page, otherwise the
+  // landing screen.
+  const back = () => {
     setError(null);
-    setPhase({ kind: "input" });
+    if (locked) setPhase({ kind: "chesscom", resp: locked.resp, username: locked.user });
+    else setPhase({ kind: "input" });
   };
 
   switch (phase.kind) {
+    case "loading":
+      return (
+        <div className="mx-auto flex min-h-full max-w-2xl items-center justify-center p-6 text-muted">
+          Loading…
+        </div>
+      );
     case "input":
       return (
         <Landing
@@ -84,19 +127,20 @@ export default function App() {
         />
       );
     case "picker":
-      return <GamePicker games={phase.games} onPick={(i) => analyze(pgn, i)} onBack={reset} />;
+      return <GamePicker games={phase.games} onPick={(i) => analyze(pgn, i)} onBack={back} />;
     case "chesscom":
       return (
         <ChessComPicker
           initial={phase.resp}
           username={phase.username}
+          locked={locked !== null}
           onPick={(p) => analyze(p, 0)}
-          onBack={reset}
+          onBack={back}
         />
       );
     case "progress":
       return <Progress progress={progress} />;
     case "analysis":
-      return <AnalysisView result={phase.result} onReset={reset} />;
+      return <AnalysisView result={phase.result} onReset={back} />;
   }
 }

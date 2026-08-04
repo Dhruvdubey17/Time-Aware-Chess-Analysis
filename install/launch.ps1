@@ -5,6 +5,11 @@
 #
 # If Windows blocks the script, run it like this:
 #   powershell -ExecutionPolicy Bypass -File install\launch.ps1
+#
+# Optional: pass a chess.com username to open straight to that account's games:
+#   powershell -ExecutionPolicy Bypass -File install\launch.ps1 magnuscarlsen
+
+param([string]$User = "")
 
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
@@ -14,6 +19,14 @@ if (-not (Test-Path .venv\Scripts\python.exe)) { Write-Host "Please run the setu
 if (-not (Test-Path engines\STOCKFISH_PATH))   { Write-Host "Setup looks incomplete. Run install\install.ps1"; exit 1 }
 
 $env:STOCKFISH_PATH = (Get-Content engines\STOCKFISH_PATH -Raw).Trim()
+
+# Optional chess.com username. When given, the app opens straight to that
+# account's games and stays locked to it, refreshes included. The server passes
+# it to the browser app through /api/health.
+if ($User.Trim()) {
+  $env:CHESS_REVIEW_USER = $User.Trim()
+  Write-Host "Locked to chess.com user: $($User.Trim())"
+}
 
 # Find a free local port in 8000..8020. We use the app's own Python (required
 # just above) to test-bind, so this matches the macOS/Linux launcher and does not

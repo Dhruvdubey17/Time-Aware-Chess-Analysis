@@ -3,6 +3,9 @@
 #
 # Everything runs on your machine. Nothing is sent anywhere. Press Ctrl+C in this
 # window to stop the app.
+#
+# Optional: pass a chess.com username to open straight to that account's games:
+#   bash install/launch.sh magnuscarlsen
 
 set -euo pipefail
 
@@ -13,6 +16,15 @@ cd "$ROOT"
 [ -f engines/STOCKFISH_PATH ] || { echo "Setup looks incomplete. Run:  bash install/install.sh" >&2; exit 1; }
 
 export STOCKFISH_PATH="$(cat engines/STOCKFISH_PATH)"
+
+# Optional chess.com username. When given, the app opens straight to that
+# account's games and stays locked to it, refreshes included. The server passes
+# it to the browser app through /api/health.
+user="${1:-}"
+if [ -n "$user" ]; then
+  export CHESS_REVIEW_USER="$user"
+  echo "Locked to chess.com user: $user"
+fi
 
 # Find a free local port in 8000..8020. We use the app's own Python (already
 # required just below) to test-bind, so this needs no extra tool like lsof and

@@ -103,22 +103,38 @@ def _stub(game: dict) -> dict:
     }
 
 
+def _standard_games(user: str, month: str) -> list[dict]:
+    """That month's standard-chess games, newest first (variants filtered out)."""
+    data = _get(f"{API}/player/{user}/games/{month}")
+    games = [_stub(g) for g in data.get("games", []) if g.get("rules", "chess") == "chess"]
+    games.reverse()  # API returns oldest first; show newest first
+    return games
+
+
 def fetch_month(username: str, month: str | None = None) -> dict:
     """A month's standard-chess games, newest first, each with its PGN.
 
-    `month` is 'YYYY/MM'; when omitted we use the most recent month with games.
+    `month` is 'YYYY/MM'. When it is omitted (the landing view), we return the
+    most recent month that actually has standard games, so a quiet current month
+    lands the user on the last month they played instead of an empty page or an
+    error. When a specific month is asked for (the user picked it), we honor it
+    and say plainly if it holds no standard games.
     """
     user = normalize_username(username)
     months = list_months(user)
     if not months:
         raise ChessComError(f"'{username}' has no games on chess.com yet.")
-    month = month or months[0]
+
+    if month is None:
+        for m in months:  # newest first
+            games = _standard_games(user, m)
+            if games:
+                return {"month": m, "months": months, "games": games}
+        raise ChessComError(f"'{username}' has no standard chess games on chess.com yet.")
+
     if month not in months:
         raise ChessComError(f"'{username}' has no games for {month}.")
-
-    data = _get(f"{API}/player/{user}/games/{month}")
-    games = [_stub(g) for g in data.get("games", []) if g.get("rules", "chess") == "chess"]
-    games.reverse()  # API returns oldest first; show newest first
+    games = _standard_games(user, month)
     if not games:
         raise ChessComError(f"No standard games found for '{username}' in {month}.")
     return {"month": month, "months": months, "games": games}

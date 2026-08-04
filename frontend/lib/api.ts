@@ -39,6 +39,12 @@ export function intake(pgn: string): Promise<{ games: GameSummary[] }> {
   return post("/api/intake", { pgn });
 }
 
+// A chess.com username the launcher was started with, or null. When set, the app
+// opens straight to that account's games and stays there across refreshes.
+export function getLockedUser(): Promise<string | null> {
+  return get<{ locked_user: string | null }>("/api/health").then((h) => h.locked_user ?? null);
+}
+
 // The only network-touching calls. They fetch a game from chess.com's public API.
 export function chesscomGames(username: string, month?: string): Promise<ChessComGamesResponse> {
   return post("/api/chesscom/games", { username, month });
